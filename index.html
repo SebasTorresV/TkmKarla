@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Florecitas para mi niña linda</title>
+    <link rel="icon" href="https://imgur.com/a/riQdAMG"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #fffdf5;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container {
+            text-align: center;
+            z-index: 10;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 2rem;
+            transition: opacity 0.5s ease;
+        }
+        
+        .btn {
+            background-color: #FFD700;
+            color: #333;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin: 0 0.5rem;
+        }
+        
+        .btn:hover {
+            background-color: #FFC000;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-no {
+            background-color: #f8f8f8;
+            color: #666;
+        }
+        
+        .btn-no:hover {
+            background-color: #eeeeee;
+        }
+        
+        .bouquet-container {
+            position: absolute;
+            top: 150%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            width: 300px;
+            height: auto;
+            opacity: 0;
+            transition: all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 5;
+        }
+        
+        .bouquet-image {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+        }
+        
+        .message {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            color: #FF69B4;
+            opacity: 0;
+            transition: opacity 1s ease;
+            text-align: center;
+            width: 100%;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 1.5rem;
+            color: #FF69B4;
+            opacity: 0;
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        .buttons {
+            transition: opacity 0.5s ease;
+        }
+        
+        .no-button-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        .sparkle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 10;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>¿Te gustan las flores?</h1>
+        <div class="buttons">
+            <button class="btn btn-yes">Sí</button>
+            <div class="no-button-container">
+                <button class="btn btn-no">No</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bouquet-container">
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-Photoroom%20%289%29-omAkY8dyl88Xoz8RF3cAIZjzDYqSYe.png" alt="Ramo de girasoles" class="bouquet-image">
+    </div>
+    
+    <div class="message" id="message1">Te quiero Muchisimo Karla.💛</div>
+    <div class="message" id="message2" style="opacity: 0;">Atte: El que vio F1 solo para hablar contigo. 🏎️❤️</div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const yesButton = document.querySelector('.btn-yes');
+            const noButton = document.querySelector('.btn-no');
+            const noButtonContainer = document.querySelector('.no-button-container');
+            const bouquetContainer = document.querySelector('.bouquet-container');
+            const message1 = document.getElementById('message1');
+            const message2 = document.getElementById('message2');
+            const buttons = document.querySelector('.buttons');
+            const heading = document.querySelector('h1');
+            
+            noButton.addEventListener('mouseover', function() {
+                const maxX = window.innerWidth - 100;
+                const maxY = window.innerHeight - 100;
+                
+                const randomX = Math.floor(Math.random() * maxX);
+                const randomY = Math.floor(Math.random() * maxY);
+                
+                noButtonContainer.style.position = 'absolute';
+                noButtonContainer.style.left = randomX + 'px';
+                noButtonContainer.style.top = randomY + 'px';
+            });
+            
+            function addSparkles() {
+                document.querySelectorAll('.sparkle').forEach(el => el.remove());
+                
+                for (let i = 0; i < 15; i++) {
+                    const sparkle = document.createElement('div');
+                    sparkle.classList.add('sparkle');
+                    
+                    const bouquetRect = bouquetContainer.getBoundingClientRect();
+                    const x = Math.random() * bouquetRect.width;
+                    const y = Math.random() * bouquetRect.height;
+                    sparkle.style.left = x + 'px';
+                    sparkle.style.top = y + 'px';
+                    
+                    sparkle.style.animation = `sparkle 1.5s infinite ${Math.random() * 2}s`;
+                    
+                    bouquetContainer.appendChild(sparkle);
+                }
+            }
+            
+            yesButton.addEventListener('click', function() {
+                buttons.style.opacity = '0';
+                heading.style.opacity = '0';
+                
+                setTimeout(() => {
+                    buttons.style.display = 'none';
+                    heading.style.display = 'none';
+                    
+                    addSparkles();
+                    
+                    bouquetContainer.style.opacity = '1';
+                    bouquetContainer.style.top = '50%';
+                    bouquetContainer.style.transform = 'translate(-50%, -50%) scale(1)';
+                    
+                    setTimeout(() => {
+                        message1.style.opacity = '1';
+                        
+                        // Hacer que el primer mensaje desaparezca después de 2 segundos
+                        setTimeout(() => {
+                            message1.style.opacity = '0';
+                            // Mostrar el segundo mensaje después de que desaparezca el primero
+                            message2.style.opacity = '1';
+                        }, 2000); // 2 segundos de retraso antes de que el primer mensaje desaparezca
+                        
+                        createHearts();
+                    }, 1500);
+                }, 500);
+            });
+            
+            function createHearts() {
+                const heartCount = 40;
+                
+                for (let i = 0; i < heartCount; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('div');
+                        heart.classList.add('heart');
+                        heart.innerHTML = '❤️';
+                        
+                        const x = Math.floor(Math.random() * window.innerWidth);
+                        heart.style.left = x + 'px';
+                        heart.style.bottom = '0';
+                        
+                        const size = Math.random() * 1 + 0.5;
+                        heart.style.fontSize = size + 'rem';
+                        
+                        const duration = Math.random() * 3 + 3;
+                        heart.style.animationDuration = duration + 's';
+                        
+                        document.body.appendChild(heart);
+                        
+                        setTimeout(() => {
+                            heart.remove();
+                        }, duration * 1000);
+                    }, i * 200);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
