@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Completa: Despliegue y Captura de Imágenes con WDS en VMware</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --accent-color: #0ea5e9;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --error-color: #dc2626;
+            --neutral-50: #f8fafc;
+            --neutral-100: #f1f5f9;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-400: #94a3b8;
+            --neutral-500: #64748b;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --neutral-900: #0f172a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--neutral-700);
+            background-color: var(--neutral-50);
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+
+        /* Navigation */
+        .nav-menu {
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu.active {
+            transform: translateX(0);
+        }
+
+        .nav-link {
+            position: relative;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background-color: white;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 1px solid var(--neutral-200);
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        /* Phase sections */
+        .phase-section {
+            border-left: 4px solid var(--accent-color);
+            position: relative;
+        }
+
+        .phase-section::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 24px;
+            width: 12px;
+            height: 12px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            border: 3px solid white;
+        }
+
+        /* Step items */
+        .step-item {
+            border-left: 2px solid var(--neutral-300);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .step-item::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 12px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--neutral-300);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .step-item:hover::before {
+            background-color: var(--accent-color);
+            transform: scale(1.2);
+        }
+
+        /* Alert boxes */
+        .alert {
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            border-left: 4px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            opacity: 0.3;
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            border-color: var(--warning-color);
+            color: #92400e;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            border-color: var(--success-color);
+            color: #065f46;
+        }
+
+        .alert-info {
+            background-color: #dbeafe;
+            border-color: var(--accent-color);
+            color: #1e40af;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            border-color: var(--error-color);
+            color: #991b1b;
+        }
+
+        /* Code snippets */
+        .code-snippet {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #f1f5f9;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-snippet::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+        }
+
+        /* Progress indicator */
+        .progress-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Breadcrumbs */
+        .breadcrumb {
+            background-color: var(--neutral-100);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb-item {
+            color: var(--neutral-500);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--primary-color);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--neutral-700);
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-menu {
+                position: fixed;
+                left: -100%;
+                top: 70px;
+                flex-direction: column;
+                background-color: var(--primary-color);
+                width: 100%;
+                text-align: center;
+                transition: 0.3s;
+                box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+                z-index: 999;
+                padding: 20px 0;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-link {
+                margin: 8px 16px;
+            }
+
+            .phase-section {
+                padding-left: 16px;
+            }
+
+            .step-item {
+                padding-left: 16px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Icon styles */
+        .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+
+        /* Table of contents */
+        .toc {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--neutral-200);
+            position: sticky;
+            top: 100px;
+        }
+
+        .toc-item {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--neutral-200);
+            transition: all 0.3s ease;
+        }
+
+        .toc-item:last-child {
+            border-bottom: none;
+        }
+
+        .toc-item:hover {
+            padding-left: 8px;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Indicator -->
+    <div class="progress-indicator" id="progressBar"></div>
+
+    <!-- Header -->
+    <header class="header sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-server text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-white">WDS Guide</h1>
+                        <p class="text-blue-200 text-sm">Deployment & Capture</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="nav-menu hidden md:flex space-x-2">
+                    <a href="#inicio" class="nav-link">
+                        <i class="fas fa-home icon"></i>Inicio
+                    </a>
+                    <a href="#fase1" class="nav-link">
+                        <i class="fas fa-cog icon"></i>Configuración
+                    </a>
+                    <a href="#fase2" class="nav-link">
+                        <i class="fas fa-images icon"></i>Imágenes
+                    </a>
+                    <a href="#fase3" class="nav-link">
+                        <i class="fas fa-desktop icon"></i>Cliente
+                    </a>
+                    <a href="#fase4" class="nav-link">
+                        <i class="fas fa-camera icon"></i>Captura
+                    </a>
+                    <a href="#fase5" class="nav-link">
+                        <i class="fas fa-file-code icon"></i>unattend.xml
+                    </a>
+                </nav>
+
+                <!-- Mobile Hamburger -->
+                <div class="hamburger md:hidden" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <nav class="nav-menu md:hidden" id="mobileMenu">
+                <a href="#inicio" class="nav-link">
+                    <i class="fas fa-home icon"></i>Inicio
+                </a>
+                <a href="#fase1" class="nav-link">
+                    <i class="fas fa-cog icon"></i>Configuración WDS
+                </a>
+                <a href="#fase2" class="nav-link">
+                    <i class="fas fa-images icon"></i>Preparación Imágenes
+                </a>
+                <a href="#fase3" class="nav-link">
+                    <i class="fas fa-desktop icon"></i>Cliente Captura
+                </a>
+                <a href="#fase4" class="nav-link">
+                    <i class="fas fa-camera icon"></i>Captura Imagen
+                </a>
+                <a href="#fase5" class="nav-link">
+                    <i class="fas fa-file-code icon"></i>Herramientas ADK
+                </a>
+                <a href="#fase6" class="nav-link">
+                    <i class="fas fa-wrench icon"></i>Configuración XML
+                </a>
+                <a href="#fase7" class="nav-link">
+                    <i class="fas fa-link icon"></i>Integración WDS
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-7xl">
+        
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb fade-in-up">
+            <div class="flex items-center space-x-2 text-sm">
+                <a href="#" class="breadcrumb-item">
+                    <i class="fas fa-home mr-1"></i>Inicio
+                </a>
+                <i class="fas fa-chevron-right text-neutral-400"></i>
+                <span class="breadcrumb-item active">Guía WDS</span>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section id="inicio" class="card p-8 mb-8 fade-in-up">
+            <div class="text-center">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-server text-white text-3xl"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-neutral-800 mb-4">
+                    Guía Completa: Despliegue y Captura de Imágenes con WDS
+                </h1>
+                <p class="text-xl text-neutral-600 mb-6 max-w-3xl mx-auto">
+                    Configurar un servidor WDS en VMware para desplegar y capturar imágenes personalizadas de Windows de manera eficiente y automatizada.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <div class="flex items-center space-x-2 text-neutral-600">
+                        <i class="fas fa-clock text-blue-500"></i>
+                        <span>Tiempo estimado: 4-6 horas</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-neutral-600">
+                        <i class="fas fa-layer-group text-green-500"></i>
+                        <span>7 fases detalladas</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-neutral-600">
+                        <i class="fas fa-tools text-orange-500"></i>
+                        <span>VMware + Windows Server</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Table of Contents -->
+            <aside class="lg:col-span-1">
+                <div class="toc">
+                    <h3 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+                        <i class="fas fa-list-ul mr-2 text-blue-500"></i>
+                        Contenido
+                    </h3>
+                    <div class="space-y-2">
+                        <a href="#fase1" class="toc-item block text-sm text-neutral-600 hover:text-blue-600">
+                            <i class="fas fa-cog mr-2"></i>Configuración WDS
+                        </a>
+                        <a href="#fase2" class="toc-item block text-sm text-neutral-600 hover:text-blue-600">
+                            <i class="fas fa-images mr-2"></i>Preparación Imágenes
+                        </a>
+                        <a href="#fase3" class="toc-item block text-sm text-neutral-600 hover:text-blue-600">
+                            <i class="fas fa-desktop mr-2"></i>Cliente Captura
+                        </a>
+                        <a href="#fase4" class="toc-item block text-sm text-neutral-600 hover:text-blue-600">
+                            <i class="fas fa-camera mr-2"></i>Captura Imagen
+                        </a>
+                        <a href="#fase5" class="toc-item block text-sm text-neutral-600 hover:text-blue-600">
+                            <i class="fas fa-file-code mr-2"></i>unattend.xml
+                        </a>
+                        <a href="#fase6" class="toc-item block text-sm text-neutral-600 hover:text-blue-600">
+                            <i class="fas fa-wrench mr-2"></i>Configuración XML
+                        </a>
+                        <a href="#fase7" class="toc-item block text-sm text-neutral-600 hover:text-blue-600">
+                            <i class="fas fa-link mr-2"></i>Integración WDS
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 space-y-8">
+
+                <!-- Fase 1 -->
+                <section id="fase1" class="phase-section card p-8 fade-in-up">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-cog text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-neutral-800">Fase 1: Configuración del Servidor WDS</h2>
+                            <p class="text-neutral-600">Instalación y configuración inicial del rol WDS en GRE1-SRV01</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-download mr-2 text-green-500"></i>
+                                1. Instalación del Rol WDS en GRE1-SRV01
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Abrimos el <strong>Administrador del servidor</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Iniciamos el asistente de <strong>"Agregar roles y características"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Seleccionamos el servidor local (GRE1-SRV01) como destino de la instalación.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-green-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">En la sección "Roles de servidor", marcamos:</p>
+                                            <div class="alert alert-success">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-server mr-2"></i>
+                                                    <strong>Servicios de implementación de Windows</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Aceptamos la adición de características necesarias haciendo clic en <strong>"Agregar características"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-green-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">En la sección "Servicios de rol" para WDS, confirmamos que ambos estén marcados:</p>
+                                            <div class="alert alert-success">
+                                                <div class="space-y-2">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-check-circle mr-2"></i>
+                                                        <strong>Servidor de implementación</strong>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-check-circle mr-2"></i>
+                                                        <strong>Servidor de transporte</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-terminal mr-2 text-blue-500"></i>
+                                2. Abrir la Consola de WDS y Agregar el Servidor
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-arrow-right text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Una vez instalado el rol, vamos a <strong>"Herramientas"</strong> en el Administrador del servidor y seleccionamos <strong>"Servicios de implementación de Windows"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-arrow-right text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Si aparece el mensaje "Este complemento no tiene ningún servidor agregado", hacemos clic derecho en <strong>"Servidores"</strong> y seleccionamos <strong>"Agregar servidor"</strong>, eligiendo GRE1-SRV01.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-wrench mr-2 text-purple-500"></i>
+                                3. Configuración Inicial de WDS (Modo Servidor Independiente)
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-play text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Hacemos clic derecho en <strong>GRE1-SRV01</strong> y seleccionamos <strong>"Configurar servidor"</strong>.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-warning">
+                                    <div class="flex items-start space-x-3">
+                                        <i class="fas fa-key text-2xl"></i>
+                                        <div>
+                                            <p class="font-semibold mb-2">🔑 Punto Clave:</p>
+                                            <p class="mb-2">En esta fase, seleccionamos el tipo de instalación del servidor WDS. Elegimos:</p>
+                                            <p class="font-semibold">✅ Servidor independiente</p>
+                                            <p class="text-sm mt-2">(Esto es importante si no tenemos un controlador de dominio o no deseamos integrar WDS con AD en esta etapa).</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-folder text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Especificamos la ruta para la carpeta RemoteInstall: <code class="bg-neutral-200 px-2 py-1 rounded text-sm">C:\RemoteInstall</code></p>
+                                    </div>
+                                </div>
+
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-network-wired text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>En las <strong>"Opciones de configuración de DHCP"</strong>, marcamos las opciones que WDS sugiera para la integración.</p>
+                                    </div>
+                                </div>
+
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-broadcast-tower text-purple-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">En la <strong>"Configuración de respuesta del servidor PXE"</strong>, seleccionamos:</p>
+                                            <div class="alert alert-success">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-wifi mr-2"></i>
+                                                    <strong>Responder a todos los equipos cliente (conocidos y desconocidos)</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success">
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-check-circle text-2xl"></i>
+                                <div>
+                                    <h4 class="font-semibold mb-2">🟢 Estado Actual del Servidor WDS:</h4>
+                                    <ul class="space-y-1">
+                                        <li class="flex items-center"><i class="fas fa-check mr-2"></i>Rol WDS instalado correctamente</li>
+                                        <li class="flex items-center"><i class="fas fa-check mr-2"></i>Servidor configurado en modo independiente</li>
+                                        <li class="flex items-center"><i class="fas fa-check mr-2"></i>Carpetas básicas de WDS creadas</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fase 2 -->
+                <section id="fase2" class="phase-section card p-8 fade-in-up">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-images text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-neutral-800">Fase 2: Preparación y Adición de Imágenes Base</h2>
+                            <p class="text-neutral-600">Configuración de imágenes boot.wim e install.wim en WDS</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-compact-disc mr-2 text-blue-500"></i>
+                                1. Preparación de Archivos WIM de Windows 10
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-download text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Obtenemos la ISO de Windows 10 (la misma versión que usaremos para la VM de captura).</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-hdd text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Montamos la ISO en nuestro equipo host (clic derecho > <strong>"Montar"</strong>).</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-folder-open text-blue-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">Navegamos a <code class="bg-neutral-200 px-2 py-1 rounded text-sm">[Letra de unidad ISO]:\sources\</code> y localizamos:</p>
+                                            <div class="bg-neutral-100 p-3 rounded-lg ml-4">
+                                                <div class="flex items-center mb-1">
+                                                    <i class="fas fa-file mr-2 text-neutral-600"></i>
+                                                    <code class="text-sm">boot.wim</code>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-file mr-2 text-neutral-600"></i>
+                                                    <code class="text-sm">install.wim</code>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-copy text-blue-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">Copiamos ambos archivos a una ubicación accesible desde el servidor WDS:</p>
+                                            <div class="bg-neutral-100 p-3 rounded-lg ml-4">
+                                                <div class="flex items-center mb-1">
+                                                    <i class="fas fa-folder mr-2 text-neutral-600"></i>
+                                                    <code class="text-sm">C:\ISOS\WN10\boot.wim</code>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-folder mr-2 text-neutral-600"></i>
+                                                    <code class="text-sm">C:\ISOS\WN10\install.wim</code>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-rocket mr-2 text-green-500"></i>
+                                2. Agregar Imagen de Arranque (boot.wim) a WDS
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-terminal text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Abrimos la consola de <strong>"Servicios de implementación de Windows"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-plus text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Clic derecho en <strong>"Imágenes de arranque"</strong> > <strong>"Agregar imagen de arranque..."</strong></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-file-import text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Especificamos la ruta: <code class="bg-neutral-200 px-2 py-1 rounded text-sm">C:\ISOS\WN10\boot.wim</code></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-tag text-green-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">En <strong>"Metadatos de imagen"</strong>, configuramos:</p>
+                                            <div class="alert alert-info">
+                                                <div class="space-y-1">
+                                                    <p><strong>Nombre:</strong> WIN10 BOOT</p>
+                                                    <p><strong>Descripción:</strong> Entorno de instalación para Windows 10 desde ISO oficial</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-success">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        <strong>Resultado:</strong> La imagen WIN10 BOOT aparece en "Imágenes de arranque"
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-windows mr-2 text-purple-500"></i>
+                                3. Agregar Imagen de Instalación (install.wim) a WDS
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-layer-group text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Clic derecho en <strong>"Imágenes de instalación"</strong> > <strong>"Agregar grupo de imágenes"</strong></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-tag text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p><strong>Nombre del grupo:</strong> Windows 10</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-plus text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Clic derecho en el grupo <strong>"Windows 10"</strong> > <strong>"Agregar imagen de instalación..."</strong></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-file-import text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Especificamos la ruta: <code class="bg-neutral-200 px-2 py-1 rounded text-sm">C:\ISOS\WN10\install.wim</code></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check-square text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Seleccionamos únicamente <strong>Windows 10 Pro</strong> de las ediciones disponibles.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-success">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        <strong>Resultado:</strong> Windows 10 Pro aparece en el grupo Windows 10
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success">
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-server text-2xl"></i>
+                                <div>
+                                    <h4 class="font-semibold mb-2">🟢 Estado Actual del Servidor WDS:</h4>
+                                    <ul class="space-y-1">
+                                        <li class="flex items-center"><i class="fas fa-rocket mr-2"></i>Imagen de arranque (WIN10 BOOT) disponible</li>
+                                        <li class="flex items-center"><i class="fas fa-windows mr-2"></i>Imagen de instalación (Windows 10 Pro) lista</li>
+                                        <li class="flex items-center"><i class="fas fa-broadcast-tower mr-2"></i>WDS funcional y listo para peticiones PXE</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fase 3 -->
+                <section id="fase3" class="phase-section card p-8 fade-in-up">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-desktop text-orange-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-neutral-800">Fase 3: Preparación del Cliente para Captura</h2>
+                            <p class="text-neutral-600">Creación y configuración de la VM cliente en VMware</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-plus-circle mr-2 text-blue-500"></i>
+                                1. Creación de la Máquina Virtual Cliente para Captura (Cliente-Captura-W10)
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-play text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Abrimos VMware Workstation.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-magic text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Iniciamos el asistente para crear una nueva máquina virtual (File > New Virtual Machine).</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-cogs text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Seleccionamos <strong>Custom (advanced)</strong> y hacemos clic en <strong>Next</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-microchip text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>En <strong>Hardware compatibility</strong>, mantenemos la opción por defecto (ej., "Workstation 17.x").</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-compact-disc text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>En <strong>Installer disk image file</strong>, seleccionamos <strong>"I will install the operating system later"</strong> (vamos a instalar Windows 10 vía WDS/PXE).</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-windows text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>En <strong>Guest Operating System</strong>, seleccionamos <strong>Microsoft Windows</strong> y <strong>Windows 10 x64</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-tag text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Nombramos la VM: <strong>Cliente-Captura-W10</strong> y elegimos ubicación: <code class="bg-neutral-200 px-2 py-1 rounded text-sm">D:\Redes1\Captura Cliente WDS</code></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-microchip text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>En <strong>Processors</strong>, asignamos 1 CPU y 2 núcleos por CPU.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-memory text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>En <strong>Memory</strong>, asignamos 2048 MB (2 GB).</p>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-warning">
+                                    <div class="flex items-start space-x-3">
+                                        <i class="fas fa-network-wired text-2xl"></i>
+                                        <div>
+                                            <p class="font-semibold mb-2">🔑 Punto Clave: Configuración de Red</p>
+                                            <p class="mb-2">Aquí es donde aseguramos la comunicación con WDS:</p>
+                                            <p class="font-semibold">Seleccionamos "Use network connection: Bridged (Automatic)".</p>
+                                            <p class="text-sm mt-2">"Bridged" es el modo más confiable para PXE ya que coloca la VM directamente en tu red física, permitiendo acceso al DHCP y WDS.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-hdd text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>En <strong>I/O Controller Types</strong>, seleccionamos <strong>LSI Logic SAS (Recommended)</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-database text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>En <strong>Disk Types</strong>, seleccionamos <strong>Create a new virtual disk</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-expand-arrows-alt text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>En <strong>Disk Size</strong>, especificamos 30 GB y seleccionamos <strong>"Store virtual disk as a single file"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-blue-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">En la pantalla de resumen, hacemos clic en <strong>Customize Hardware...</strong> para verificar:</p>
+                                            <ul class="list-disc list-inside ml-4 space-y-1 text-neutral-600">
+                                                <li>Network Adapter en modo <strong>Bridged</strong></li>
+                                                <li><strong>"Connect at power on"</strong> activado</li>
+                                                <li>(Opcional) Configurar arranque por red en Boot Options</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-download mr-2 text-green-500"></i>
+                                2. Instalación y Preparación de Windows 10 en Cliente-Captura-W10
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-power-off text-green-600 text-xs"></i>
+                                        </div>
+                                        <p><strong>Instalar Windows 10:</strong> Encendemos la VM Cliente-Captura-W10. Durante el arranque, forzamos el arranque PXE (F12) para conectar a WDS (GRE1-SRV01). Seleccionamos WIN10 BOOT y luego Windows 10 Pro.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-palette text-green-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2"><strong>Personalización:</strong> Una vez instalado Windows 10 Pro:</p>
+                                            <ul class="list-disc list-inside ml-4 space-y-1 text-neutral-600">
+                                                <li>Instalamos VMware Tools</li>
+                                                <li>Actualizamos con Windows Update</li>
+                                                <li>Instalamos software base (navegadores, Office, etc.)</li>
+                                                <li>Configuramos sistema (fondo, idioma, energía, etc.)</li>
+                                                <li>Limpieza de disco (cleanmgr.exe)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-warning">
+                                    <div class="flex items-start space-x-3">
+                                        <i class="fas fa-camera text-2xl"></i>
+                                        <div>
+                                            <p class="font-semibold mb-2">📸 Tomar una Instantánea (Snapshot): ¡CRÍTICO!</p>
+                                            <p>Antes de ejecutar Sysprep, creamos una instantánea de la VM (VM > Snapshot > Take Snapshot...) con nombre "W10 Personalizado Antes de Sysprep". Esto nos permite revertir si algo sale mal.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-terminal mr-2 text-red-500"></i>
+                                3. Ejecutar Sysprep en Cliente-Captura-W10
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-terminal text-red-600 text-xs"></i>
+                                        </div>
+                                        <p>Dentro de la VM, abrimos el <strong>Símbolo del sistema (CMD)</strong> como <strong>Administrador</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-folder text-red-600 text-xs"></i>
+                                        </div>
+                                        <p>Navegamos a la carpeta de Sysprep: <code class="bg-neutral-200 px-2 py-1 rounded text-sm">cd %windir%\system32\sysprep</code></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-code text-red-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">Ejecutamos Sysprep con los parámetros correctos:</p>
+                                            <div class="code-snippet">
+                                                <code class="text-green-400">sysprep.exe /oobe /generalize /shutdown</code>
+                                            </div>
+                                            <div class="alert alert-info mt-3">
+                                                <div class="space-y-1 text-sm">
+                                                    <p><strong>/oobe:</strong> Prepara para la Experiencia Rápida (OOBE)</p>
+                                                    <p><strong>/generalize:</strong> Elimina información específica del sistema (SID, nombres, controladores)</p>
+                                                    <p><strong>/shutdown:</strong> Apaga la máquina inmediatamente después</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-error">
+                                    <div class="flex items-start space-x-3">
+                                        <i class="fas fa-exclamation-triangle text-2xl"></i>
+                                        <div>
+                                            <p class="font-semibold mb-2">⚠️ ¡Advertencia!</p>
+                                            <p>Una vez que la VM se apaga después de Sysprep, NO la inicies de nuevo en su sistema operativo. Debe permanecer apagada hasta el momento de la captura PXE.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fase 4 -->
+                <section id="fase4" class="phase-section card p-8 fade-in-up">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-camera text-red-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-neutral-800">Fase 4: Captura de la Imagen Personalizada</h2>
+                            <p class="text-neutral-600">Proceso de captura con WDS y configuración del asistente</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-plus mr-2 text-blue-500"></i>
+                                1. Agregar Imagen de Captura a WDS en GRE1-SRV01
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-terminal text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Abrimos la consola de <strong>"Servicios de implementación de Windows"</strong> en GRE1-SRV01.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-rocket text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Vamos a <strong>"Imágenes de arranque"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-camera text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Clic derecho en <strong>WIN10 BOOT</strong> > <strong>"Crear imagen de captura..."</strong></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-cog text-blue-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">En el asistente:</p>
+                                            <ul class="list-disc list-inside ml-4 space-y-1 text-neutral-600">
+                                                <li>Ruta: <code class="bg-neutral-200 px-2 py-1 rounded text-sm">C:\Temp\W10_Captura.wim</code></li>
+                                                <li>Nombre: "W10 Captura - WDS"</li>
+                                                <li>Descripción apropiada</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-plus text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Clic derecho en <strong>"Imágenes de arranque"</strong> > <strong>"Agregar imagen de arranque..."</strong></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-file-import text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Seleccionamos el archivo de captura: <code class="bg-neutral-200 px-2 py-1 rounded text-sm">C:\Temp\W10_Captura.wim</code></p>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-success">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        <strong>Resultado:</strong> Ahora tenemos WIN10 BOOT y W10 Captura - WDS en "Imágenes de arranque"
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-power-off mr-2 text-green-500"></i>
+                                2. Iniciar el Cliente y Forzar Arranque PXE
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-cog text-green-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">Con la VM Cliente-Captura-W10 apagada, en VMware Workstation:</p>
+                                            <ul class="list-disc list-inside ml-4 space-y-1 text-neutral-600">
+                                                <li>Verificar Network Adapter en <strong>"Bridged"</strong></li>
+                                                <li>Marcar <strong>"Force BIOS setup"</strong> en Boot Options</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-play text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Encendemos la VM Cliente-Captura-W10.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-keyboard text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>En el BIOS/UEFI, movemos <strong>"Network Boot"</strong> / <strong>"PXE Boot"</strong> a la primera posición. Guardamos (F10).</p>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-error">
+                                    <div class="flex items-start space-x-3">
+                                        <i class="fas fa-exclamation-circle text-2xl"></i>
+                                        <div>
+                                            <p class="font-semibold mb-2">🔑 ¡CRÍTICO!</p>
+                                            <p>Cuando aparezca "Press F12 for network service boot", presionamos F12 rápidamente para forzar el arranque PXE.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-key mr-2 text-purple-500"></i>
+                                3. Seleccionar la Imagen de Captura y Autenticarse
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-mouse-pointer text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>En el <strong>"Windows Boot Manager"</strong>, seleccionamos <strong>W10 Captura - WDS</strong> (¡paso crucial!).</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-play text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Presionamos <strong>ENTER</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-spinner text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Windows PE se carga e inicia el <strong>"Asistente para captura de imágenes de WDS"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-user text-purple-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">En <strong>"Escribir credenciales de red"</strong>:</p>
+                                            <div class="alert alert-info">
+                                                <div class="space-y-1">
+                                                    <p><strong>Usuario:</strong> MIDOMINIO\Administrador (o administrador@midominio.com)</p>
+                                                    <p><strong>Contraseña:</strong> La contraseña correspondiente</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Si la autenticación es exitosa, avanza a <strong>"Ubicación de imagen nueva"</strong>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-cogs mr-2 text-orange-500"></i>
+                                4. Configurar la Ubicación de la Imagen Nueva
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check-square text-orange-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">En <strong>"Ubicación de imagen nueva"</strong>:</p>
+                                            <ul class="list-disc list-inside ml-4 space-y-1 text-neutral-600">
+                                                <li>Marcar ✅ <strong>"Cargar imagen en un servidor de WDS (opcional)"</strong></li>
+                                                <li>Servidor: <strong>GRE1-SRV01</strong> (o IP: 192.168.197.11)</li>
+                                                <li>Clic en <strong>"Conectar"</strong></li>
+                                                <li>Grupo: <strong>"Windows 10"</strong></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-success">
+                                    <div class="flex items-start space-x-3">
+                                        <i class="fas fa-rocket text-2xl"></i>
+                                        <div>
+                                            <p class="font-semibold mb-2">✅ Estado Actual:</p>
+                                            <p>El asistente de captura está listo para iniciar la grabación de la imagen de Cliente-Captura-W10 y subirla a WDS (GRE1-SRV01) dentro del grupo "Windows 10".</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-play-circle mr-2 text-indigo-500"></i>
+                                Siguiente Paso: Proceso de Captura
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-progress-bar text-indigo-600 text-xs"></i>
+                                        </div>
+                                        <p>El asistente comenzará el proceso de grabación. Verás una barra de progreso. Esto puede tardar un tiempo considerable.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-power-off text-indigo-600 text-xs"></i>
+                                        </div>
+                                        <p>Una vez finalizado, el cliente se apagará automáticamente.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check-circle text-indigo-600 text-xs"></i>
+                                        </div>
+                                        <p>Verificar en WDS (GRE1-SRV01) > <strong>"Imágenes de instalación"</strong> > <strong>"Windows 10"</strong> que la nueva imagen personalizada aparece con estado <strong>"Disponible"</strong>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fase 5 -->
+                <section id="fase5" class="phase-section card p-8 fade-in-up">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-file-code text-indigo-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-neutral-800">Fase 5: Creación del Archivo unattend.xml</h2>
+                            <p class="text-neutral-600">Automatización de instalaciones con Windows ADK y WSIM</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-download mr-2 text-blue-500"></i>
+                                1. Preparación de Herramientas - Windows ADK
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-globe text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>En GRE1-SRV01, abrimos el navegador y buscamos: <strong>"Descargar Windows ADK para Windows 10"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-link text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Accedemos al enlace oficial de Microsoft Learn y descargamos el instalador del ADK.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-play text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Ejecutamos el instalador (<code class="bg-neutral-200 px-2 py-1 rounded text-sm">adksetup.exe</code>) y seguimos el asistente.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check-square text-blue-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">En "Seleccione las características":</p>
+                                            <div class="alert alert-success">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-tools mr-2"></i>
+                                                    <strong>✅ Herramientas de implementación (Deployment Tools)</strong>
+                                                    <p class="text-sm ml-6 mt-1">Este componente es indispensable para WSIM</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-window-restore mr-2 text-green-500"></i>
+                                2. Abrir Windows System Image Manager (WSIM)
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-search text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Vamos al menú Inicio y buscamos la carpeta <strong>"Windows Kits"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-mouse-pointer text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Hacemos clic en <strong>"Windows System Image Manager"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Verificamos que la ventana muestre "Windows System Image Manager" en su título.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-folder-open mr-2 text-purple-500"></i>
+                                3. Cargar la Imagen de Windows (install.wim)
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-file text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>En WSIM: <strong>Archivo > Seleccionar imagen de Windows...</strong></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-folder text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Navegamos a: <code class="bg-neutral-200 px-2 py-1 rounded text-sm">C:\ISOS\WN10\install.wim</code></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-mouse-pointer text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Seleccionamos el archivo y hacemos clic en <strong>"Abrir"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-windows text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Si contiene múltiples ediciones, seleccionamos <strong>Windows 10 Pro</strong>.</p>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-warning">
+                                    <div class="flex items-start space-x-3">
+                                        <i class="fas fa-folder-plus text-2xl"></i>
+                                        <div>
+                                            <p class="font-semibold mb-2">📁 Creación de Archivo de Catálogo</p>
+                                            <p class="mb-2">WSIM mostrará: "No se encuentra el archivo de catálogo... ¿Desea crear un archivo de catálogo?"</p>
+                                            <p class="font-semibold">✅ Hacemos clic en "Sí"</p>
+                                            <div class="mt-2 text-sm space-y-1">
+                                                <p>• Si hay errores de permisos, asegurar "Control total" sobre C:\ISOS\WN10\</p>
+                                                <p>• La generación puede tardar 10-15 minutos</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fase 6 -->
+                <section id="fase6" class="phase-section card p-8 fade-in-up">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-wrench text-teal-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-neutral-800">Fase 6: Configuración del Archivo de Respuestas (unattend.xml)</h2>
+                            <p class="text-neutral-600">Configuración detallada de todos los pases de instalación</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-file-plus mr-2 text-blue-500"></i>
+                                1. Crear Nuevo Archivo de Respuestas
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-file text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>En WSIM: <strong>Archivo > Nuevo archivo de respuestas</strong></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-eye text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>El panel central se activa mostrando los "Pases" de configuración (windowsPE, specialize, oobeSystem, etc.)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-cogs mr-2 text-green-500"></i>
+                                2. Configurar Pase 1 windowsPE
+                            </h3>
+                            <div class="space-y-6">
+                                <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500">
+                                    <h4 class="font-semibold text-blue-800 mb-3 flex items-center">
+                                        <i class="fas fa-globe mr-2"></i>
+                                        2.1 Idioma y Regionalización
+                                    </h4>
+                                    <div class="space-y-3 text-sm">
+                                        <div class="step-item pl-4">
+                                            <p>• Expandir Components > amd64_Microsoft-Windows-International-Core-WinPE</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Clic derecho > "Agregar configuración al pase 1 windowsPE"</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Configurar en Propiedades:</p>
+                                            <div class="bg-white p-3 rounded ml-4 mt-2">
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                                                    <p><strong>InputLocale:</strong> es-ES</p>
+                                                    <p><strong>SystemLocale:</strong> es-ES</p>
+                                                    <p><strong>UILanguage:</strong> es-ES</p>
+                                                    <p><strong>UILanguageFallback:</strong> es-ES</p>
+                                                    <p><strong>UserLocale:</strong> es-ES</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
+                                    <h4 class="font-semibold text-green-800 mb-3 flex items-center">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        2.2 Aceptar EULA y Clave de Producto
+                                    </h4>
+                                    <div class="space-y-3 text-sm">
+                                        <div class="step-item pl-4">
+                                            <p>• Components > amd64_Microsoft-Windows-Setup > UserData</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Clic derecho > "Agregar configuración al pase 1 windowsPE"</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Configurar en Propiedades:</p>
+                                            <div class="bg-white p-3 rounded ml-4 mt-2">
+                                                <p><strong>AcceptEula:</strong> True (Crucial para automatización)</p>
+                                                <p><strong>ProductKey:</strong> (Opcional - dejar en blanco si no tienes clave)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-purple-50 p-6 rounded-lg border-l-4 border-purple-500">
+                                    <h4 class="font-semibold text-purple-800 mb-3 flex items-center">
+                                        <i class="fas fa-hdd mr-2"></i>
+                                        2.3 Configuración de Disco (Crítico)
+                                    </h4>
+                                    <div class="space-y-4 text-sm">
+                                        <div class="bg-white p-4 rounded">
+                                            <p class="font-semibold mb-2">Paso A: Agregar DiskConfiguration</p>
+                                            <div class="step-item pl-4">
+                                                <p>• Components > amd64_Microsoft-Windows-Setup > DiskConfiguration</p>
+                                                <p>• Clic derecho > "Agregar configuración al pase 1 windowsPE"</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="bg-white p-4 rounded">
+                                            <p class="font-semibold mb-2">Paso B: Configurar Disco a Borrar</p>
+                                            <div class="step-item pl-4">
+                                                <p>• Clic derecho en DiskConfiguration > "Insertar nuevo disco"</p>
+                                                <p>• <strong>DiskID:</strong> 0, <strong>WillWipeDisk:</strong> True</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white p-4 rounded">
+                                            <p class="font-semibold mb-2">Paso C: Crear 4 Particiones (CreatePartitions)</p>
+                                            <div class="step-item pl-4">
+                                                <p>• Insertar 4 CreatePartition en el Disk</p>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 text-xs">
+                                                    <p>• Partición 1: Order=1, Size=500, Type=Primary</p>
+                                                    <p>• Partición 2: Order=2, Size=100, Type=EFI</p>
+                                                    <p>• Partición 3: Order=3, Size=128, Type=MSR</p>
+                                                    <p>• Partición 4: Order=4, Extend=True, Type=Primary</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white p-4 rounded">
+                                            <p class="font-semibold mb-2">Paso D: Formatear Particiones (ModifyPartitions)</p>
+                                            <div class="step-item pl-4">
+                                                <p>• Insertar 4 ModifyPartition en el Disk</p>
+                                                <div class="space-y-1 mt-2 text-xs">
+                                                    <p>• ModifyPartition 1: Order=1, Format=NTFS, Label=Recovery, PartitionID=1</p>
+                                                    <p>• ModifyPartition 2: Order=2, Format=FAT32, Label=System, PartitionID=2</p>
+                                                    <p>• ModifyPartition 3: Order=3, PartitionID=3 (sin Format)</p>
+                                                    <p>• ModifyPartition 4: Order=4, Format=NTFS, Label=Windows, PartitionID=4, Letter=C</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-orange-50 p-6 rounded-lg border-l-4 border-orange-500">
+                                    <h4 class="font-semibold text-orange-800 mb-3 flex items-center">
+                                        <i class="fas fa-target mr-2"></i>
+                                        2.4 Destino de Instalación (InstallTo)
+                                    </h4>
+                                    <div class="space-y-3 text-sm">
+                                        <div class="step-item pl-4">
+                                            <p>• Components > amd64_Microsoft-Windows-Setup > ImageInstall > OSImage > InstallTo</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Clic derecho > "Agregar configuración al pase 1 windowsPE"</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Configurar:</p>
+                                            <div class="bg-white p-3 rounded ml-4 mt-2">
+                                                <p><strong>DiskID:</strong> 0</p>
+                                                <p><strong>PartitionID:</strong> 4 (Partición del sistema operativo)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-desktop mr-2 text-cyan-500"></i>
+                                3. Configurar Pase 3 specialize
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-cyan-50 p-6 rounded-lg border-l-4 border-cyan-500">
+                                    <h4 class="font-semibold text-cyan-800 mb-3 flex items-center">
+                                        <i class="fas fa-computer mr-2"></i>
+                                        Nombre de Equipo y Zona Horaria
+                                    </h4>
+                                    <div class="space-y-3 text-sm">
+                                        <div class="step-item pl-4">
+                                            <p>• Components > amd64_Microsoft-Windows-Shell-Setup</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Clic derecho > "Agregar configuración al pase 3 specialize"</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Configurar en Propiedades:</p>
+                                            <div class="bg-white p-3 rounded ml-4 mt-2">
+                                                <p><strong>ComputerName:</strong> PC%RAND% (nombre aleatorio)</p>
+                                                <p><strong>TimeZone:</strong> Central America Standard Time</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-user-cog mr-2 text-red-500"></i>
+                                4. Configurar Pase 7 oobeSystem
+                            </h3>
+                            <div class="space-y-6">
+                                <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
+                                    <h4 class="font-semibold text-red-800 mb-3 flex items-center">
+                                        <i class="fas fa-eye-slash mr-2"></i>
+                                        4.1 Omitir OOBE
+                                    </h4>
+                                    <div class="space-y-3 text-sm">
+                                        <div class="step-item pl-4">
+                                            <p>• Components > amd64_Microsoft-Windows-Shell-Setup > OOBE</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Clic derecho > "Agregar configuración al pase 7 oobeSystem"</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Configurar:</p>
+                                            <div class="bg-white p-3 rounded ml-4 mt-2">
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                                                    <p><strong>HideEULAPage:</strong> True</p>
+                                                    <p><strong>ProtectYourPC:</strong> 3</p>
+                                                    <p><strong>SkipMachineOOBE:</strong> True</p>
+                                                    <p><strong>SkipUserOOBE:</strong> True</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-indigo-50 p-6 rounded-lg border-l-4 border-indigo-500">
+                                    <h4 class="font-semibold text-indigo-800 mb-3 flex items-center">
+                                        <i class="fas fa-user-plus mr-2"></i>
+                                        4.2 Crear Cuenta de Administrador Local
+                                    </h4>
+                                    <div class="space-y-3 text-sm">
+                                        <div class="step-item pl-4">
+                                            <p>• Components > amd64_Microsoft-Windows-Shell-Setup > UserAccounts > LocalAccounts</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Clic derecho > "Agregar configuración al pase 7 oobeSystem"</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Clic derecho en LocalAccounts > "Insertar nueva LocalAccount"</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Configurar la LocalAccount:</p>
+                                            <div class="bg-white p-3 rounded ml-4 mt-2">
+                                                <div class="space-y-1 text-xs">
+                                                    <p><strong>Name:</strong> Administrador</p>
+                                                    <p><strong>DisplayName:</strong> Administrador Local</p>
+                                                    <p><strong>Group:</strong> Administrators</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Seleccionar Password bajo LocalAccount y configurar:</p>
+                                            <div class="bg-white p-3 rounded ml-4 mt-2">
+                                                <p><strong>Value:</strong> TuContraseñaSegura123</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-teal-50 p-6 rounded-lg border-l-4 border-teal-500">
+                                    <h4 class="font-semibold text-teal-800 mb-3 flex items-center">
+                                        <i class="fas fa-sign-in-alt mr-2"></i>
+                                        4.3 Inicio de Sesión Automático (Opcional)
+                                    </h4>
+                                    <div class="space-y-3 text-sm">
+                                        <div class="step-item pl-4">
+                                            <p>• Components > amd64_Microsoft-Windows-Shell-Setup > AutoLogon</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Clic derecho > "Agregar configuración al pase 7 oobeSystem"</p>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Configurar:</p>
+                                            <div class="bg-white p-3 rounded ml-4 mt-2">
+                                                <div class="space-y-1 text-xs">
+                                                    <p><strong>Enabled:</strong> True</p>
+                                                    <p><strong>LogonCount:</strong> 1</p>
+                                                    <p><strong>Username:</strong> Administrador</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="step-item pl-4">
+                                            <p>• Seleccionar Password bajo AutoLogon:</p>
+                                            <div class="bg-white p-3 rounded ml-4 mt-2">
+                                                <p><strong>Value:</strong> TuContraseñaSegura123 (la misma contraseña)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fase 7 -->
+                <section id="fase7" class="phase-section card p-8 fade-in-up">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-link text-emerald-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-neutral-800">Fase 7: Validación e Integración del unattend.xml</h2>
+                            <p class="text-neutral-600">Validación final e integración con WDS</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-check-double mr-2 text-blue-500"></i>
+                                1. Validar el Archivo de Respuestas
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-tools text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>En WSIM: <strong>Herramientas > Validar archivo de respuestas</strong></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-eye text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Revisar el panel "Mensajes" en la parte inferior.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-success">
+                                    <div class="flex items-start space-x-3">
+                                        <i class="fas fa-check-circle text-2xl"></i>
+                                        <div>
+                                            <p class="font-semibold mb-2">✅ Resultado Esperado:</p>
+                                            <p>"No hay errores ni advertencias en el archivo de respuestas"</p>
+                                            <p class="text-sm mt-2">Advertencias (ícono amarillo) son aceptables, pero NO errores (ícono rojo)</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-exclamation-triangle text-blue-600 text-xs"></i>
+                                        </div>
+                                        <p>Si hay errores, WSIM indicará la descripción y ubicación para corregirlos.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-save mr-2 text-green-500"></i>
+                                2. Guardar el Archivo de Respuestas
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-file-export text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Una vez validado correctamente: <strong>Archivo > Guardar archivo de respuestas como...</strong></p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-cog text-green-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">Configurar el guardado:</p>
+                                            <div class="alert alert-info">
+                                                <div class="space-y-1">
+                                                    <p><strong>Nombre:</strong> unattend.xml</p>
+                                                    <p><strong>Ubicación:</strong> C:\RemoteInstall\Images\Windows 10\</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-green-600 text-xs"></i>
+                                        </div>
+                                        <p>Hacer clic en <strong>"Guardar"</strong>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                                <i class="fas fa-plug mr-2 text-purple-500"></i>
+                                3. Integrar con WDS
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-terminal text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Abrir la consola <strong>"Servicios de implementación de Windows"</strong> en GRE1-SRV01.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-sitemap text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Navegar a: Servidores > GRE1-SRV01 > Imágenes de instalación > Windows 10</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-mouse-pointer text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Hacer clic derecho en <strong>Windows 10 Pro</strong> > <strong>"Propiedades"</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-cogs text-purple-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-2">En la pestaña <strong>"General"</strong>:</p>
+                                            <ul class="list-disc list-inside ml-4 space-y-1 text-neutral-600 text-sm">
+                                                <li>Marcar ✅ <strong>"Permitir la instalación de la imagen en modo desatendido"</strong></li>
+                                                <li>Hacer clic en <strong>"Examinar..."</strong></li>
+                                                <li>Seleccionar: <code class="bg-neutral-200 px-2 py-1 rounded">C:\RemoteInstall\Images\Windows 10\unattend.xml</code></li>
+                                                <li>Hacer clic en <strong>"Abrir"</strong></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Verificar que la ruta del unattend.xml aparezca en el campo.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-save text-purple-600 text-xs"></i>
+                                        </div>
+                                        <p>Hacer clic en <strong>"Aplicar"</strong> y luego <strong>"Aceptar"</strong>.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-success">
+                                    <div class="flex items-start space-x-3">
+                                        <i class="fas fa-trophy text-2xl"></i>
+                                        <div>
+                                            <p class="font-semibold mb-2">🎉 ¡Integración Completada!</p>
+                                            <p>El archivo unattend.xml está ahora vinculado a la imagen Windows 10 Pro en WDS. Las futuras instalaciones serán completamente automatizadas.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-lg border border-emerald-200">
+                            <h4 class="text-xl font-semibold text-emerald-800 mb-4 flex items-center">
+                                <i class="fas fa-rocket mr-2"></i>
+                                🚀 Próximos Pasos Recomendados
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <div class="flex items-center text-emerald-700">
+                                        <i class="fas fa-vial mr-2"></i>
+                                        <span class="font-medium">Pruebas</span>
+                                    </div>
+                                    <ul class="text-sm text-emerald-600 space-y-1 ml-6">
+                                        <li>• Probar instalación automatizada</li>
+                                        <li>• Verificar configuraciones aplicadas</li>
+                                        <li>• Validar cuentas de usuario</li>
+                                    </ul>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center text-emerald-700">
+                                        <i class="fas fa-shield-alt mr-2"></i>
+                                        <span class="font-medium">Optimización</span>
+                                    </div>
+                                    <ul class="text-sm text-emerald-600 space-y-1 ml-6">
+                                        <li>• Implementar políticas de seguridad</li>
+                                        <li>• Configurar actualizaciones automáticas</li>
+                                        <li>• Documentar el proceso completo</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Final Summary -->
+                <section class="card p-8 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-trophy text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-neutral-800 mb-4">🎉 ¡Proceso Completado!</h2>
+                        <p class="text-lg text-neutral-600 mb-6 max-w-3xl mx-auto">
+                            Has configurado exitosamente un servidor WDS y capturado una imagen personalizada de Windows 10. 
+                            Tu infraestructura está lista para desplegar esta imagen en múltiples clientes de manera eficiente.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-check text-green-600"></i>
+                                </div>
+                                <p class="text-sm font-medium">WDS Configurado</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-images text-blue-600"></i>
+                                </div>
+                                <p class="text-sm font-medium">Imágenes Preparadas</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-camera text-purple-600"></i>
+                                </div>
+                                <p class="text-sm font-medium">Captura Realizada</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-cogs text-orange-600"></i>
+                                </div>
+                                <p class="text-sm font-medium">Automatización Lista</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" id="scrollTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer class="bg-neutral-800 text-white py-8 mt-16">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-server text-white"></i>
+                </div>
+                <span class="text-lg font-semibold">WDS Guide</span>
+            </div>
+            <p class="text-neutral-400">
+                &copy; 2024 Guía WDS - Configuración y Captura de Imágenes. 
+                Documentación técnica para administradores de sistemas.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            });
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+
+        // Scroll to top button
+        const scrollTopBtn = document.getElementById('scrollTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all fade-in-up elements
+        document.querySelectorAll('.fade-in-up').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            observer.observe(el);
+        });
+
+        // Active navigation highlighting
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link, .toc-item');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
