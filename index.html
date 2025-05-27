@@ -478,6 +478,9 @@
                 <a href="#fase7" class="nav-link">
                     <i class="fas fa-link icon"></i>Integración WDS
                 </a>
+                <a href="#unattend-explicacion" class="nav-link">
+                    <i class="fas fa-file-code icon"></i>Explicación XML
+                </a>
             </nav>
         </div>
     </header>
@@ -553,6 +556,9 @@
                         </a>
                         <a href="#fase7" class="toc-item block text-sm text-neutral-600 hover:text-blue-600">
                             <i class="fas fa-link mr-2"></i>Integración WDS
+                        </a>
+                        <a href="#unattend-explicacion" class="toc-item block text-sm text-neutral-600 hover:text-blue-600">
+                            <i class="fas fa-file-code mr-2"></i>Explicación unattend.xml
                         </a>
                     </div>
                 </div>
@@ -2124,6 +2130,331 @@
                                         <li>• Configurar actualizaciones automáticas</li>
                                         <li>• Documentar el proceso completo</li>
                                     </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Explicación Detallada del unattend.xml -->
+                <section id="unattend-explicacion" class="phase-section card p-8 fade-in-up">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-file-code text-violet-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-neutral-800">📄 Explicación Completa del Archivo unattend.xml</h2>
+                            <p class="text-neutral-600">Análisis detallado de cada sección y configuración del archivo de respuestas</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Introducción -->
+                        <div class="bg-gradient-to-r from-violet-50 to-purple-50 p-6 rounded-lg border border-violet-200">
+                            <p class="text-lg text-violet-800 mb-4">
+                                Este archivo permite realizar una instalación completamente desatendida de Windows 10 a través de WDS (Windows Deployment Services). 
+                                Está dividido por secciones llamadas <strong>"passes"</strong>, que representan diferentes fases de la instalación.
+                            </p>
+                        </div>
+
+                        <!-- Pass 1: windowsPE -->
+                        <div>
+                            <h3 class="text-2xl font-semibold text-neutral-800 mb-6 flex items-center">
+                                <i class="fas fa-cogs mr-3 text-blue-500"></i>
+                                🧩 1. &lt;settings pass="windowsPE"&gt;
+                            </h3>
+                            <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500 mb-6">
+                                <p class="text-blue-800 font-medium">
+                                    Esta es la primera fase que se ejecuta cuando el equipo cliente arranca desde red (PXE) usando WDS.
+                                </p>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <!-- Configuración Regional -->
+                                <div class="bg-white p-6 rounded-lg border border-neutral-200">
+                                    <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+                                        <i class="fas fa-globe mr-2 text-green-500"></i>
+                                        🗺️ Configuración Regional e Idioma
+                                    </h4>
+                                    <div class="code-snippet mb-4">
+                                        <code class="text-green-400">&lt;Microsoft-Windows-International-Core-WinPE&gt;
+    &lt;InputLocale&gt;es-ES&lt;/InputLocale&gt;
+    &lt;SystemLocale&gt;es-ES&lt;/SystemLocale&gt;
+    &lt;UILanguage&gt;es-ES&lt;/UILanguage&gt;
+    &lt;UILanguageFallback&gt;es-ES&lt;/UILanguageFallback&gt;
+    &lt;UserLocale&gt;es-ES&lt;/UserLocale&gt;
+&lt;/Microsoft-Windows-International-Core-WinPE&gt;</code>
+                                    </div>
+                                    <p class="text-neutral-600">Define idioma, región y distribución del teclado: <strong>Español (España)</strong>.</p>
+                                </div>
+
+                                <!-- Configuración de Disco -->
+                                <div class="bg-white p-6 rounded-lg border border-neutral-200">
+                                    <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+                                        <i class="fas fa-hdd mr-2 text-purple-500"></i>
+                                        💾 Configuración de Particiones de Disco
+                                    </h4>
+                                    <div class="code-snippet mb-4">
+                                        <code class="text-green-400">&lt;DiskConfiguration&gt;
+    &lt;DiskID&gt;0&lt;/DiskID&gt;
+    &lt;WillWipeDisk&gt;true&lt;/WillWipeDisk&gt;</code>
+                                    </div>
+                                    <p class="text-neutral-600 mb-4">Indica que se usará el disco físico 0 y se borrará completamente (WillWipeDisk).</p>
+                                    
+                                    <div class="alert alert-info">
+                                        <h5 class="font-semibold mb-2">Particiones que se crean:</h5>
+                                        <ul class="space-y-1 text-sm">
+                                            <li class="flex items-center"><i class="fas fa-circle mr-2 text-orange-500"></i><strong>Recovery</strong> (450 MB) – para recuperación del sistema</li>
+                                            <li class="flex items-center"><i class="fas fa-circle mr-2 text-blue-500"></i><strong>EFI</strong> (100 MB, FAT32) – necesaria si se usa firmware UEFI</li>
+                                            <li class="flex items-center"><i class="fas fa-circle mr-2 text-green-500"></i><strong>MSR</strong> (128 MB) – partición reservada por Microsoft</li>
+                                            <li class="flex items-center"><i class="fas fa-circle mr-2 text-purple-500"></i><strong>Windows</strong> (resto del disco) – donde se instalará Windows</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="code-snippet mt-4">
+                                        <code class="text-green-400">&lt;ModifyPartition ... Format="NTFS" Label="Windows" Letter="C" /&gt;</code>
+                                    </div>
+                                    <div class="text-sm text-neutral-600 mt-2 space-y-1">
+                                        <p>• Partición 4 (Windows) se formatea como NTFS, con letra C</p>
+                                        <p>• Partición 2 (EFI) es FAT32, necesaria para el arranque</p>
+                                        <p>• La partición Recovery se marca con un TypeID especial que identifica su función</p>
+                                    </div>
+                                </div>
+
+                                <!-- Instalación de Imagen -->
+                                <div class="bg-white p-6 rounded-lg border border-neutral-200">
+                                    <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+                                        <i class="fas fa-download mr-2 text-indigo-500"></i>
+                                        📦 Instalación de la Imagen de Windows
+                                    </h4>
+                                    <div class="code-snippet mb-4">
+                                        <code class="text-green-400">&lt;ImageInstall&gt;
+    &lt;OSImage&gt;
+        &lt;InstallTo&gt;
+            &lt;DiskID&gt;0&lt;/DiskID&gt;
+            &lt;PartitionID&gt;4&lt;/PartitionID&gt;
+        &lt;/InstallTo&gt;
+    &lt;/OSImage&gt;
+&lt;/ImageInstall&gt;</code>
+                                    </div>
+                                    <p class="text-neutral-600">Especifica que Windows se instalará en la <strong>partición 4 del disco 0</strong>.</p>
+                                </div>
+
+                                <!-- Conexión WDS -->
+                                <div class="bg-white p-6 rounded-lg border border-neutral-200">
+                                    <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+                                        <i class="fas fa-network-wired mr-2 text-cyan-500"></i>
+                                        🔐 Conexión al Servidor WDS
+                                    </h4>
+                                    <div class="code-snippet mb-4">
+                                        <code class="text-green-400">&lt;WindowsDeploymentServices&gt;
+    &lt;Login&gt;
+        &lt;Credentials&gt;
+            &lt;Domain&gt;gre1.local&lt;/Domain&gt;
+            &lt;Username&gt;Administrador&lt;/Username&gt;
+            &lt;Password&gt;Matias1234&lt;/Password&gt;
+        &lt;/Credentials&gt;
+    &lt;/Login&gt;</code>
+                                    </div>
+                                    <div class="space-y-2 text-neutral-600 text-sm">
+                                        <p>• Usa las credenciales del dominio (gre1.local) para conectarse al servidor WDS</p>
+                                        <p>• El usuario Administrador es una cuenta del dominio usada para autenticar y descargar la imagen</p>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <h5 class="font-semibold text-neutral-700 mb-2">Selección de imagen:</h5>
+                                        <div class="code-snippet">
+                                            <code class="text-green-400">&lt;InstallImage&gt;
+    &lt;Filename&gt;install.wim&lt;/Filename&gt;
+    &lt;ImageGroup&gt;WN10 Pro&lt;/ImageGroup&gt;
+    &lt;ImageName&gt;Windows 10 Pro&lt;/ImageName&gt;
+&lt;/InstallImage&gt;</code>
+                                        </div>
+                                        <p class="text-neutral-600 text-sm mt-2">Se selecciona la imagen <strong>Windows 10 Pro</strong> desde el archivo install.wim dentro del grupo <strong>WN10 Pro</strong>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pass 2: specialize -->
+                        <div>
+                            <h3 class="text-2xl font-semibold text-neutral-800 mb-6 flex items-center">
+                                <i class="fas fa-desktop mr-3 text-green-500"></i>
+                                🧩 2. &lt;settings pass="specialize"&gt;
+                            </h3>
+                            <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500 mb-6">
+                                <p class="text-green-800 font-medium">
+                                    Esta fase ocurre justo después de que Windows ha copiado los archivos e iniciado por primera vez.
+                                </p>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-lg border border-neutral-200">
+                                <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+                                    <i class="fas fa-computer mr-2 text-green-500"></i>
+                                    🖥️ Nombre del Equipo y Zona Horaria
+                                </h4>
+                                <div class="code-snippet mb-4">
+                                    <code class="text-green-400">&lt;ComputerName&gt;*&lt;/ComputerName&gt;
+&lt;TimeZone&gt;Central America Standard Time&lt;/TimeZone&gt;</code>
+                                </div>
+                                <div class="space-y-2 text-neutral-600 text-sm">
+                                    <p>• El nombre del equipo se genera automáticamente (*)</p>
+                                    <p>• Se establece la zona horaria de Centroamérica (UTC-6), útil para El Salvador</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pass 3: oobeSystem -->
+                        <div>
+                            <h3 class="text-2xl font-semibold text-neutral-800 mb-6 flex items-center">
+                                <i class="fas fa-user-cog mr-3 text-orange-500"></i>
+                                🧩 3. &lt;settings pass="oobeSystem"&gt;
+                            </h3>
+                            <div class="bg-orange-50 p-6 rounded-lg border-l-4 border-orange-500 mb-6">
+                                <p class="text-orange-800 font-medium">
+                                    Esta fase es la Out-Of-Box Experience (OOBE), es decir, lo que normalmente verías al encender por primera vez un equipo nuevo. Aquí se evita todo eso.
+                                </p>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <!-- Autologon -->
+                                <div class="bg-white p-6 rounded-lg border border-neutral-200">
+                                    <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+                                        <i class="fas fa-sign-in-alt mr-2 text-blue-500"></i>
+                                        🔐 Autologon (inicio de sesión automático)
+                                    </h4>
+                                    <div class="code-snippet mb-4">
+                                        <code class="text-green-400">&lt;AutoLogon&gt;
+    &lt;Username&gt;Sebas&lt;/Username&gt;
+    &lt;Password&gt;
+        &lt;Value&gt;Matias1234&lt;/Value&gt;
+        &lt;PlainText&gt;true&lt;/PlainText&gt;
+    &lt;/Password&gt;
+&lt;/AutoLogon&gt;</code>
+                                    </div>
+                                    <p class="text-neutral-600">Windows iniciará sesión automáticamente con la cuenta <strong>Sebas</strong> y la contraseña <strong>Matias1234</strong>.</p>
+                                </div>
+
+                                <!-- Cuenta Local -->
+                                <div class="bg-white p-6 rounded-lg border border-neutral-200">
+                                    <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+                                        <i class="fas fa-user-plus mr-2 text-purple-500"></i>
+                                        👤 Cuenta Local Creada
+                                    </h4>
+                                    <div class="code-snippet mb-4">
+                                        <code class="text-green-400">&lt;LocalAccount wcm:action="add"&gt;
+    &lt;Name&gt;Sebas&lt;/Name&gt;
+    &lt;Group&gt;Administrators&lt;/Group&gt;
+    &lt;DisplayName&gt;Sebas&lt;/DisplayName&gt;
+    &lt;Password&gt;
+        &lt;Value&gt;Matias1234&lt;/Value&gt;
+        &lt;PlainText&gt;true&lt;/PlainText&gt;
+    &lt;/Password&gt;
+&lt;/LocalAccount&gt;</code>
+                                    </div>
+                                    <div class="space-y-2 text-neutral-600 text-sm">
+                                        <p>• Se crea una cuenta local llamada <strong>Sebas</strong>, con privilegios de administrador</p>
+                                        <p>• Esta cuenta se usa para trabajar en el equipo después de la instalación</p>
+                                        <p>• Es la misma cuenta configurada para el autologon</p>
+                                    </div>
+                                </div>
+
+                                <!-- Configuraciones OOBE -->
+                                <div class="bg-white p-6 rounded-lg border border-neutral-200">
+                                    <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+                                        <i class="fas fa-eye-slash mr-2 text-red-500"></i>
+                                        📵 Configuraciones que Ocultan Pantallas en OOBE
+                                    </h4>
+                                    <div class="code-snippet mb-4">
+                                        <code class="text-green-400">&lt;HideEULAPage&gt;true&lt;/HideEULAPage&gt;
+&lt;HideLocalAccountScreen&gt;true&lt;/HideLocalAccountScreen&gt;
+&lt;HideOEMRegistrationScreen&gt;true&lt;/HideOEMRegistrationScreen&gt;
+&lt;HideOnlineAccountScreens&gt;true&lt;/HideOnlineAccountScreens&gt;
+&lt;HideWirelessSetupInOOBE&gt;true&lt;/HideWirelessSetupInOOBE&gt;</code>
+                                    </div>
+                                    <div class="alert alert-info">
+                                        <h5 class="font-semibold mb-2">Evita que se muestren las siguientes pantallas:</h5>
+                                        <ul class="space-y-1 text-sm">
+                                            <li class="flex items-center"><i class="fas fa-times mr-2 text-red-500"></i>Contrato de licencia (EULA)</li>
+                                            <li class="flex items-center"><i class="fas fa-times mr-2 text-red-500"></i>Creación de cuenta local</li>
+                                            <li class="flex items-center"><i class="fas fa-times mr-2 text-red-500"></i>Registro del fabricante</li>
+                                            <li class="flex items-center"><i class="fas fa-times mr-2 text-red-500"></i>Inicio de sesión con cuenta Microsoft</li>
+                                            <li class="flex items-center"><i class="fas fa-times mr-2 text-red-500"></i>Configuración de redes inalámbricas</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="code-snippet mt-4">
+                                        <code class="text-green-400">&lt;NetworkLocation&gt;Work&lt;/NetworkLocation&gt;</code>
+                                    </div>
+                                    <p class="text-neutral-600 text-sm mt-2">Establece que el perfil de red será <strong>"Trabajo"</strong>, lo que permite recursos compartidos sin restricciones como en redes domésticas.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección offlineImage -->
+                        <div>
+                            <h3 class="text-2xl font-semibold text-neutral-800 mb-6 flex items-center">
+                                <i class="fas fa-file-image mr-3 text-indigo-500"></i>
+                                🧩 4. &lt;cpi:offlineImage&gt;
+                            </h3>
+                            
+                            <div class="bg-white p-6 rounded-lg border border-neutral-200">
+                                <div class="code-snippet mb-4">
+                                    <code class="text-green-400">&lt;cpi:offlineImage cpi:source="wim:c:/isos/wn10/install.wim#Windows 10 Pro" /&gt;</code>
+                                </div>
+                                <p class="text-neutral-600">Es una línea interna usada por el Windows System Image Manager (WSIM) para saber con qué imagen .wim se está trabajando.</p>
+                            </div>
+                        </div>
+
+                        <!-- Resultado Final -->
+                        <div class="bg-gradient-to-r from-emerald-50 to-green-50 p-8 rounded-lg border border-emerald-200">
+                            <h3 class="text-2xl font-bold text-emerald-800 mb-6 flex items-center">
+                                <i class="fas fa-trophy mr-3"></i>
+                                ✅ Resultado Final
+                            </h3>
+                            <p class="text-emerald-700 mb-4 font-medium">
+                                Con este archivo, cuando una máquina cliente arranca desde red (PXE) y se conecta al servidor WDS:
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-emerald-600 text-xs"></i>
+                                        </div>
+                                        <p class="text-emerald-700 text-sm">Se borrará el disco y se crearán las particiones necesarias</p>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-emerald-600 text-xs"></i>
+                                        </div>
+                                        <p class="text-emerald-700 text-sm">Se instalará la imagen de Windows 10 Pro sin intervención</p>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-emerald-600 text-xs"></i>
+                                        </div>
+                                        <p class="text-emerald-700 text-sm">Se configurará el idioma y zona horaria automáticamente</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-emerald-600 text-xs"></i>
+                                        </div>
+                                        <p class="text-emerald-700 text-sm">Se creará la cuenta Sebas con privilegios de administrador</p>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-emerald-600 text-xs"></i>
+                                        </div>
+                                        <p class="text-emerald-700 text-sm">Se omitirá toda la configuración de OOBE</p>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mt-1">
+                                            <i class="fas fa-check text-emerald-600 text-xs"></i>
+                                        </div>
+                                        <p class="text-emerald-700 text-sm">El sistema iniciará sesión automáticamente con el usuario Sebas</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
